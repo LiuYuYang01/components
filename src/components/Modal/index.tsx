@@ -23,7 +23,7 @@ export default ({ open, onClose, children, title, className }: Props) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="absolute top-0 left-0 bottom-0 right-0 bg-[rgba(0,0,0,0.45))]"
+              className="absolute top-0 left-0 bottom-0 right-0 bg-[rgba(0,0,0,0.25))] backdrop-blur-xs"
             />
 
             <motion.div
