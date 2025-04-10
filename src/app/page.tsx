@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import Modal from "../components/Modal";
-import Button from "../components/Button";
 import { HiOutlineLockClosed } from "react-icons/hi";
+import Modal from "@/components/Modal";
+import Button from "@/components/Button";
 import Calendar from "@/components/Calendar";
 import Title from "@/components/Title";
 import CodeForm from "@/components/CodeForm";
 
 export default function Home() {
+  const [btnLoading1, setBtnLoading1] = useState(false);
   const [modalOpen1, setModalOpen1] = useState(false);
   const [modalOpen2, setModalOpen2] = useState(false);
-
   return (
     <>
       <div className="w-[800px] mx-auto mt-10 space-y-16">
@@ -19,6 +19,14 @@ export default function Home() {
           <Title title="按钮" />
           <div className="space-y-2">
             <Button>普通按钮</Button>
+
+            <Button loading={btnLoading1} onClick={() => {
+              setBtnLoading1(true);
+
+              setTimeout(() => {
+                setBtnLoading1(false);
+              }, 2000);
+            }}>加载按钮</Button>
 
             <Button icon={<HiOutlineLockClosed className="text-md" />}>带图标的按钮</Button>
 
@@ -36,7 +44,12 @@ export default function Home() {
 
         <div>
           <Title title="日历" />
+
+          <p className="text-sm text-gray-500 mb-2">默认样式</p>
           <Calendar className="mt-4" />
+
+          <p className="text-sm text-gray-500 mb-2 mt-8">快速选择</p>
+          <Calendar isQuickSelect className="mt-4" />
         </div>
 
         <div>
