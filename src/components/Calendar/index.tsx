@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GoChevronLeft } from "react-icons/go";
 import { GoChevronRight } from "react-icons/go";
 
@@ -14,6 +15,7 @@ export default ({ value, onChange, className, isQuickSelect = false }: CalendarP
   const [currentDate, setCurrentDate] = useState(value || new Date());  // 当前显示的月份
   const [selectedDate, setSelectedDate] = useState<Date | null>(value || new Date());  // 选中的日期
   const [showYearSelect, setShowYearSelect] = useState(false);  // 是否显示年份选择器
+  const yearSelectRef = useRef<HTMLDivElement>(null); // 年份选择框
 
   // 常量定义
   const weekDays = ['日', '一', '二', '三', '四', '五', '六'];  // 星期显示
@@ -134,6 +136,21 @@ export default ({ value, onChange, className, isQuickSelect = false }: CalendarP
     onChange?.(selectedDate);
   };
 
+  // 添加点击外部关闭选择器的效果
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (yearSelectRef.current && !yearSelectRef.current.contains(event.target as Node)) {
+        setShowYearSelect(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // 渲染日历日期
   const renderDays = () => {
     const daysInMonth = getDaysInMonth(currentDate);  // 当前月份的天数
@@ -206,40 +223,40 @@ export default ({ value, onChange, className, isQuickSelect = false }: CalendarP
             <button
               onClick={() => handleQuickSelect('today')}
               className={`px-4 py-1 text-sm rounded-sm cursor-pointer ${isQuickSelectActive('today')
-                  ? 'text-blue-500 bg-[#eef6ff]'
-                  : 'hover:text-blue-500 hover:bg-[#eef6ff]'
+                ? 'text-blue-500 bg-[#eef6ff]'
+                : 'hover:text-blue-500 hover:bg-[#eef6ff]'
                 }`}
             >今天</button>
 
             <button
               onClick={() => handleQuickSelect('yesterday')}
               className={`px-4 py-1 text-sm rounded-sm cursor-pointer ${isQuickSelectActive('yesterday')
-                  ? 'text-blue-500 bg-[#eef6ff]'
-                  : 'hover:text-blue-500 hover:bg-[#eef6ff]'
+                ? 'text-blue-500 bg-[#eef6ff]'
+                : 'hover:text-blue-500 hover:bg-[#eef6ff]'
                 }`}
             >昨天</button>
 
             <button
               onClick={() => handleQuickSelect('week')}
               className={`px-4 py-1 text-sm rounded-sm cursor-pointer ${isQuickSelectActive('week')
-                  ? 'text-blue-500 bg-[#eef6ff]'
-                  : 'hover:text-blue-500 hover:bg-[#eef6ff]'
+                ? 'text-blue-500 bg-[#eef6ff]'
+                : 'hover:text-blue-500 hover:bg-[#eef6ff]'
                 }`}
             >一周前</button>
 
             <button
               onClick={() => handleQuickSelect('month')}
               className={`px-4 py-1 text-sm rounded-sm cursor-pointer ${isQuickSelectActive('month')
-                  ? 'text-blue-500 bg-[#eef6ff]'
-                  : 'hover:text-blue-500 hover:bg-[#eef6ff]'
+                ? 'text-blue-500 bg-[#eef6ff]'
+                : 'hover:text-blue-500 hover:bg-[#eef6ff]'
                 }`}
             >一月前</button>
 
             <button
               onClick={() => handleQuickSelect('year')}
               className={`px-4 py-1 text-sm rounded-sm cursor-pointer ${isQuickSelectActive('year')
-                  ? 'text-blue-500 bg-[#eef6ff]'
-                  : 'hover:text-blue-500 hover:bg-[#eef6ff]'
+                ? 'text-blue-500 bg-[#eef6ff]'
+                : 'hover:text-blue-500 hover:bg-[#eef6ff]'
                 }`}
             >一年前</button>
           </div>
@@ -261,26 +278,35 @@ export default ({ value, onChange, className, isQuickSelect = false }: CalendarP
               onClick={() => setShowYearSelect(!showYearSelect)}
               className="text-lg font-semibold text-gray-800 hover:bg-gray-100 px-2 py-1 rounded"
             >
-              {currentDate.getFullYear()}年{currentDate.getMonth() + 1}月
+              {currentDate.getFullYear()} - {currentDate.getMonth() + 1}
             </button>
 
             {/* 年份选择下拉框 */}
-            {showYearSelect && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 p-2 bg-white shadow-lg rounded-lg border border-gray-200 w-32 max-h-48 overflow-y-auto z-10">
-                {years.map(year => (
-                  <button
-                    key={year}
-                    onClick={() => handleYearSelect(year)}
-                    className={`
-                    w-full px-2 py-1 text-left rounded
-                    ${year === currentDate.getFullYear() ? 'bg-blue-500 text-white' : 'hover:bg-gray-100'}
-                  `}
-                  >
-                    {year}年
-                  </button>
-                ))}
-              </div>
-            )}
+            <AnimatePresence>
+              {showYearSelect && (
+                <motion.div
+                  ref={yearSelectRef}
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-1 p-2 bg-white shadow-lg rounded-lg border border-gray-200 w-24 max-h-48 overflow-y-auto z-10"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {years.map(year => (
+                    <button
+                      key={year}
+                      onClick={() => handleYearSelect(year)}
+                      className={`
+                      w-full px-2 py-1 my-0.5 text-left rounded cursor-pointer
+                      ${year === currentDate.getFullYear() ? 'text-blue-500 bg-[#eef6ff]' : 'hover:text-blue-500 hover:bg-[#eef6ff]'}
+                    `}
+                    >
+                      {year}年
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* 下个月按钮 */}
