@@ -1,5 +1,5 @@
 interface Props {
-  onClick: () => void;
+  onClick?: () => void;
   icon?: React.ReactNode;
   className?: string;
   children?: React.ReactNode;
